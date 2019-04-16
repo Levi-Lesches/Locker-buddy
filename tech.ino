@@ -1,24 +1,42 @@
-#define NUM_LED 2
+#include <LiquidCrystal.h>
 
-const int led[NUM_LED] = {2, 3, 6};
-int index = 0;
+#define NUM_CLASSES 3
+#define NUM_DAYS 7
 
-void setup() {
-	for (int index_ = 0; index_ < NUM_LED; index_++)
-		pinMode (led [index_], OUTPUT);
+LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+const String classes[NUM_CLASSES] = {"English", "History", "Music"};
+const String days[NUM_DAYS] = {"A", "B", "C", "E", "F", "R", "M"};
+int classIndex = 0;
+int dayIndex = 0;
+
+void print() {
+  lcd.clear();
+  lcd.print (days[dayIndex] + ": " + classes[classIndex]);
 }
 
-void loopIndex(int increment) {
-	digitalWrite (led[index], LOW);
-	index += increment;
-	if (index < 0) index = NUM_LED;
-	else if (index == NUM_LED) index = 0;
-	digitalWrite (led[index], HIGH);
+void loopClass(int increment) {
+  classIndex += increment;
+  if (classIndex < 0) classIndex = NUM_CLASSES;
+  else if (classIndex == NUM_CLASSES) classIndex = 0;
+  print();
+}
+
+void loopDay(int increment) {
+  dayIndex += increment;
+  if (dayIndex < 0) dayIndex = NUM_DAYS;
+  else if (dayIndex == NUM_DAYS) dayIndex = 0;
+  print();
+}
+
+void setup() {
+  lcd.begin(16, 2);
+  lcd.print("hello, world!");
+  Serial.begin (9600);
 }
 
 void loop() {
-	loopIndex(1);
-	delay (1000);
+  loopClass(1);
+  delay (1000);
+  loopDay(1);
+  delay (1000);
 }
-
-// void loop(){}
