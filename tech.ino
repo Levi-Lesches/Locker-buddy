@@ -39,6 +39,7 @@ LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
 #define NUM_CLASSES 10  // ignore Tefillah
 #define NUM_DAYS 7
+#define NUM_UNIQUE_CLASSES 14
 
 #define cols 4
 #define rows 1
@@ -54,6 +55,22 @@ const byte colPins [cols] = {9, 10, 11, 12};
 Keypad keypad (makeKeymap (inputs), rowPins, colPins, rows, cols);
 
 // Logic constants
+const String uniqueClasses [NUM_UNIQUE_CLASSES] = {
+  "Chemistry",
+  "Math",
+  "Talmud",
+  "Gym",
+  "History",
+  "Lunch",
+  "Spanish",
+  "English",
+  "Hebrew",
+  "Free",
+  "Chumash",
+  "Art",
+  "Health",
+  "Tech"
+};
 const String classes [NUM_DAYS] [NUM_CLASSES] = {
   {  // A
     "Chemistry", 
@@ -84,7 +101,7 @@ const String classes [NUM_DAYS] [NUM_CLASSES] = {
     "History", 
     "Talmud",
     "Math",
-    "Music",
+    "Art",
     "Lunch",
     "Chemistry",
     "English",
@@ -133,6 +150,22 @@ const String classes [NUM_DAYS] [NUM_CLASSES] = {
   }
 };
 const String days[NUM_DAYS] = {"A", "B", "C", "E", "F", "M", "R"};
+const int ledPins[NUM_UNIQUE_CLASSES] = {  // skip 13, BUILT_IN
+  14,
+  15,
+  16,
+  NULL,  // Gym
+  17,
+  NULL,  // Lunch
+  18, 
+  19, 
+  20,
+  NULL,  // Free
+  21,
+  NULL,  // Art
+  22, 
+  NULL,  // Tech
+};
 int classIndex = 0;
 int dayIndex = 0;
 
@@ -171,6 +204,15 @@ void loopDay(int increment) {
   classIndex = 0;
   print();
 }
+
+int getLedPin() {
+  // String class;
+  for (int index = 0; index < NUM_UNIQUE_CLASSES; index++) {
+    if (uniqueClasses[index] == "HELLO") {
+      return ledPins [index];
+    }
+  }
+} 
 
 // Initialize the LCD and print to the screen
 void setup() {
