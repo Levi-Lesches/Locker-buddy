@@ -205,10 +205,9 @@ void loopDay(int increment) {
   print();
 }
 
-int getLedPin() {
-  // String class;
+int getLedPin(String name) {
   for (int index = 0; index < NUM_UNIQUE_CLASSES; index++) {
-    if (uniqueClasses[index] == "HELLO") {
+    if (uniqueClasses[index] == name) {
       return ledPins [index];
     }
   }
