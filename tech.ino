@@ -176,9 +176,15 @@ String getMessage() {
 
 // print info on the LCD -- uses getMessage()
 void print() {
+  // Print the nwe LCD screen message
   lcd.clear();
   lcd.home();
   lcd.print (getMessage());
+  // light up the appropriate LED
+  int ledPin = getLedPin(classes[dayIndex][classIndex]);
+  digitalWrite(ledPin, HIGH);
+  delay (5000);  // 5 sec
+  digitalWrite(ledPin, LOW);
 }
 
 // Moves to the next/prev class
@@ -207,15 +213,16 @@ void loopDay(int increment) {
 
 int getLedPin(String name) {
   for (int index = 0; index < NUM_UNIQUE_CLASSES; index++) {
-    if (uniqueClasses[index] == name) {
+    if (uniqueClasses[index] == name) 
       return ledPins [index];
-    }
   }
 } 
 
 // Initialize the LCD and print to the screen
 void setup() {
   lcd.begin(16, 2);
+  for (int index = 0; index < NUM_UNIQUE_CLASSES; index++) 
+    pinMode (ledPins [index], OUTPUT);
   print();
 }
 
