@@ -25,6 +25,16 @@
   *   10 --> switch-GND2
   *   11 --> switch-GND3
   *   12 --> switch-GND4
+  * Class LEDS:
+  *   Chemistry: 14
+  *   Math: 15
+  *   Talmud: 16
+  *   History: 17
+  *   Spanish: 18
+  *   English: 19
+  *   Hebrew: 20
+  *   Chumash: 21
+  *   Health: 22
 
 */
 
