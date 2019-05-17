@@ -29,3 +29,7 @@ Here is a lookup chart for how each pin is referred to in the code:
 	* SWITCH-GND-4: SWITCH_GND_4
 * For the LEDs: 
 	Every entry in the `ledPins` list should correspond to the class of the same index in the `uniquesClasses` list.
+
+If there is any confusion about the LCD screen, see this image: 
+
+[LCD wiring](lcd_wiring "How to wire the LCD")
