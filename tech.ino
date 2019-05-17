@@ -1,70 +1,33 @@
 // TODO: implement faster scrolling for hold-down
 
-/* Pin wirings: 
-
-  * LCD screen: 
-  *   For I2C, match the labels on the chip 
-  *   For 16-bit: (see img)
-  *     From the left:
-  *       1: GND
-  *       2: VCC
-  *       3: Potentiometer (left: GND, right: VCC)
-  *       4: Arduino pin 2
-  *       5: GND
-  *       6: Arduino pin 3
-  *     From the right: 
-  *       1: GND
-  *       2: VCC (use resistor if too dim)
-  *       3: Arduino pin 7
-  *       4: Ardiuno pin 6
-  *       5: Arduino pin 5
-  *       6: Arduino pin 4
-  * Button panel:
-  *   8  --> switch1
-  *   9  --> switch-GND1
-  *   10 --> switch-GND2
-  *   11 --> switch-GND3
-  *   12 --> switch-GND4
-  * Class LEDS:
-  *   Chemistry: 14
-  *   Math: 15
-  *   Talmud: 16
-  *   History: 17
-  *   Spanish: 18
-  *   English: 19
-  *   Hebrew: 20
-  *   Chumash: 21
-  *   Health: 22
-
-*/
+// See README for wiring references
 
 #include <Keypad.h>
-
-// For I2C chips: 
-// #include <LiquidCrystal_I2C.h>
-// LiquidCrystal_I2C lcd(0x3F, 16, 2);
-
 #include <LiquidCrystal.h>
-LiquidCrystal lcd(2, 3, 4, 5, 6, 7);
 
+// Logical constants
 #define NUM_CLASSES 10  // ignore Tefillah
 #define NUM_DAYS 7
 #define NUM_UNIQUE_CLASSES 14
 
-#define cols 4
-#define rows 1
+// Button matrix constants
+#define SWITCH 53
+#define SWITCH_GND_1 51
+#define SWITCH_GND_2 49
+#define SWITCH_GND_3 47
+#define SWITCH_GND_4 45
+#define COLS 4
+#define ROWS 1
 
-// button panel constants
-// A, B --> class (top two)
-// C, D --> day (bottom two)
-const char inputs [rows] [cols] = {
-  {'A', 'C', 'B', 'D'}
-};
-const byte rowPins [rows] = {8};
-const byte colPins [cols] = {9, 10, 11, 12};
-Keypad keypad (makeKeymap (inputs), rowPins, colPins, rows, cols);
+// lcd pins: 
+#define LCD_1 2
+#define LCD_2 3
+#define LCD_3 7
+#define LCD_4 6
+#define LCD_5 5
+#define LCD_6 4
 
-// Logic constants
+// Schedule constants:
 const String uniqueClasses [NUM_UNIQUE_CLASSES] = {
   "Chemistry",
   "Math",
@@ -80,6 +43,22 @@ const String uniqueClasses [NUM_UNIQUE_CLASSES] = {
   "Art",
   "Health",
   "Tech"
+};
+const int ledPins[NUM_UNIQUE_CLASSES] = {  // skip 13, BUILT_IN
+  8,
+  9,
+  10,
+  NULL,  // Gym
+  11,
+  NULL,  // Lunch
+  18, 
+  19, 
+  20,
+  NULL,  // Free
+  21,
+  NULL,  // Art
+  22, 
+  NULL,  // Tech
 };
 const String classes [NUM_DAYS] [NUM_CLASSES] = {
   {  // A
@@ -160,24 +139,41 @@ const String classes [NUM_DAYS] [NUM_CLASSES] = {
   }
 };
 const String days[NUM_DAYS] = {"A", "B", "C", "E", "F", "M", "R"};
-const int ledPins[NUM_UNIQUE_CLASSES] = {  // skip 13, BUILT_IN
-  14,
-  15,
-  16,
-  NULL,  // Gym
-  17,
-  NULL,  // Lunch
-  18, 
-  19, 
-  20,
-  NULL,  // Free
-  21,
-  NULL,  // Art
-  22, 
-  NULL,  // Tech
+
+// Wiring configuration
+const byte rowPins [ROWS] = {SWITCH};
+// button panel constants
+// A, B --> class (top two)
+// C, D --> day (bottom two)
+const char inputs [ROWS] [COLS] = {
+  {'D', 'B', 'C', 'A'}  // out of order b/c of wiring issues
 };
+const byte colPins [COLS] = {
+  SWITCH_GND_1,
+  SWITCH_GND_2,
+  SWITCH_GND_3,
+  SWITCH_GND_4,
+};
+Keypad keypad (makeKeymap (inputs), rowPins, colPins, ROWS, COLS);
+
+// For regular lcds:
+LiquidCrystal lcd(
+  LCD_1,
+  LCD_2,
+  LCD_3,
+  LCD_4,
+  LCD_5,
+  LCD_6
+);
+
+// For I2C chips: 
+// #include <LiquidCrystal_I2C.h>
+// LiquidCrystal_I2C lcd(0x3F, 16, 2);
+
 int classIndex = 0;
 int dayIndex = 0;
+double timePassed;
+int ledPin;
 
 // returns the current day and class as a string
 String getMessage() {
@@ -190,11 +186,9 @@ void print() {
   lcd.clear();
   lcd.home();
   lcd.print (getMessage());
-  // light up the appropriate LED
-  int ledPin = getLedPin(classes[dayIndex][classIndex]);
-  digitalWrite(ledPin, HIGH);
-  delay (5000);  // 5 sec
-  digitalWrite(ledPin, LOW);
+  ledPin = getLedPin(classes[dayIndex][classIndex]);
+  timePassed = millis();
+  digitalWrite (ledPin, HIGH);
 }
 
 // Moves to the next/prev class
@@ -238,8 +232,13 @@ void setup() {
 
 // Execute commands based on the button pressed
 void loop() {
+  double time = millis();
+  if ((time - timePassed) >= 3000)
+    digitalWrite(ledPin, LOW);
   char key = keypad.getKey();
   if (key == NULL) return;
+  // if (timePassed != 0)
+  digitalWrite(ledPin, LOW);
   switch (key) {
     case 'A': loopClass (-1); break;
     case 'B': loopClass (1); break;
